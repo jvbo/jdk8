@@ -230,21 +230,21 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      */
 
     /**
-     * The default initial capacity - MUST be a power of two.
+     * The default initial capacity - MUST be a power of two. 
      */
-    static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
+    static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16 初始容量 默认16 
 
     /**
      * The maximum capacity, used if a higher value is implicitly specified
      * by either of the constructors with arguments.
      * MUST be a power of two <= 1<<30.
      */
-    static final int MAXIMUM_CAPACITY = 1 << 30;
+    static final int MAXIMUM_CAPACITY = 1 << 30; // 最大容量 默认1073741824
 
     /**
      * The load factor used when none specified in constructor.
      */
-    static final float DEFAULT_LOAD_FACTOR = 0.75f;
+    static final float DEFAULT_LOAD_FACTOR = 0.75f; // 默认负载因子
 
     /**
      * The bin count threshold for using a tree rather than list for a
@@ -254,22 +254,22 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * tree removal about conversion back to plain bins upon
      * shrinkage.
      */
-    static final int TREEIFY_THRESHOLD = 8;
+    static final int TREEIFY_THRESHOLD = 8; // 链表转换红黑树的阈值
 
     /**
      * The bin count threshold for untreeifying a (split) bin during a
      * resize operation. Should be less than TREEIFY_THRESHOLD, and at
      * most 6 to mesh with shrinkage detection under removal.
      */
-    static final int UNTREEIFY_THRESHOLD = 6;
+    static final int UNTREEIFY_THRESHOLD = 6; // 红黑树转换链表的阈值
 
     /**
      * The smallest table capacity for which bins may be treeified.
      * (Otherwise the table is resized if too many nodes in a bin.)
      * Should be at least 4 * TREEIFY_THRESHOLD to avoid conflicts
      * between resizing and treeification thresholds.
-     */
-    static final int MIN_TREEIFY_CAPACITY = 64;
+     */// 桶中bin最小hash容量,如果大于这个值会进行resize扩容操作,此值至少是TREEIFY_THRESHOLD的4倍
+    static final int MIN_TREEIFY_CAPACITY = 64; 
 
     /**
      * Basic hash bin node, used for most entries.  (See below for
@@ -617,48 +617,79 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * @param hash hash for key
      * @param key the key
      * @param value the value to put
-     * @param onlyIfAbsent if true, don't change existing value
+     * @param onlyIfAbsent if true, don't change existing value 
      * @param evict if false, the table is in creation mode.
      * @return previous value, or null if none
      */
+    //TODO onlyIfAbsent:控制已存在key的行为,默认false,为true时不修改已经存在的值,只有在不存在key时才会进行put操作
+    // evict:控制插入回调函数的行为,构造函数中调用evict为false,其他为true
     final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                    boolean evict) {
+        // 使用局部变量tab而不是类成员,方法栈上访问更快
         Node<K,V>[] tab; Node<K,V> p; int n, i;
+        // 第一次put值的时候触发resize,类似java7的第一次put也要初始化数组长度;
+        // 第一次resize和后续的扩容有些不一样,因为这次是数组从null初始化到默认的16.或自定义的初始容量
+        // table还没有分配空间,或者大小为0,要先用resize()初始化
+        // 并将初始化的size赋值给n(初始化其实就是给threshold计算出一个阀值，并new了一个node给table)
         if ((tab = table) == null || (n = tab.length) == 0)
             n = (tab = resize()).length;
+        // 找到具体的数组下标,如果此位置没有值,直接初始化一下Node并放置在这个位置上
+        // 根据hash值计算出tab数组的位置并判断是否为空,如果为空就直接把值存入一个新的Node中
+        // 散列到对应的bin,若该bin为空,直接放入Entry中
         if ((p = tab[i = (n - 1) & hash]) == null)
             tab[i] = newNode(hash, key, value, null);
+        // 计算出的p索引有元素存在,已经存在单链表或红黑树
         else {
             Node<K,V> e; K k;
+            // 根据hash key判断是不是相同元素,是就把p(老元素)赋值给新的成员变量e
             if (p.hash == hash &&
                 ((k = p.key) == key || (key != null && key.equals(k))))
                 e = p;
+            // 如果不是相同的key,只是index一样,判断是不是代表红黑树的节点,是就放入树中
             else if (p instanceof TreeNode)
                 e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+            // 不是一样的key hash 并且不是红黑树,说明数组该位置上是一个链表
             else {
+                // 无限循环,遍历链表,统计bin中Entry数量
                 for (int binCount = 0; ; ++binCount) {
+                    // key在链表中不存在,插入末尾(java7是插入链表最前面)
                     if ((e = p.next) == null) {
                         p.next = newNode(hash, key, value, null);
+                        // bin中Entry数量大于阈值,转化为红黑树,判断当前链表长度是否超过了7,则将链表元素转换为红黑树,跳出循环
+                        // TREEIFY_THRESHOLD=8 所以,如果新插入的值是链表中的第 9个,会触发下面的 treeifyBin,也就是将链表转换为红黑树
                         if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
                             treeifyBin(tab, hash);
                         break;
                     }
+                    // 判断当前index的元素是否一样,一样就赋值替换,跳出
+                    // 如果在该链表中找到了"相等"的 key(== 或 equals)
+                    // 该Key已经在链表中
                     if (e.hash == hash &&
                         ((k = e.key) == key || (key != null && key.equals(k))))
                         break;
                     p = e;
                 }
             }
+            // e != null,说明该Key已经在存在于HashMap中,存在旧值的key与要插入的key"相等"
+            // onlyIfAbsent:控制是否替换原来的value
+            // 对于分析的put操作,下面这个 if 其实就是进行 "值覆盖",然后返回旧值
             if (e != null) { // existing mapping for key
+                // 将老元素的value提取出
                 V oldValue = e.value;
+                // 将老元素的value提取出
                 if (!onlyIfAbsent || oldValue == null)
                     e.value = value;
+                // 这个方法是给LinkedHashMap留得,因为他用的也是这个put方法; 调用回调函数,HashMap中并没有实现具体行为
                 afterNodeAccess(e);
                 return oldValue;
             }
         }
+        // 更新结构更改次数 修改计数加1
         ++modCount;
+        // 如果HashMap由于新插入这个值导致size已经超过了阈值,需要进行扩容
+        // 判断+1后的size是否大于阀值默认计算出的是12)
         if (++size > threshold)
+            // 超出阈值,扩容
             resize();
         afterNodeInsertion(evict);
         return null;
