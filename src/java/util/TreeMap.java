@@ -2214,20 +2214,21 @@ public class TreeMap<K,V>
     }
 
     /** From CLR */
+    // TODO 左旋
     private void rotateLeft(Entry<K,V> p) {
         if (p != null) {
             Entry<K,V> r = p.right;
-            p.right = r.left;
+            p.right = r.left;// 左旋后,p的右子树变成了r的左子树
             if (r.left != null)
-                r.left.parent = p;
-            r.parent = p.parent;
-            if (p.parent == null)
+                r.left.parent = p;// 确认父亲是p
+            r.parent = p.parent;// r取代p的第一步:认p的父亲为父亲
+            if (p.parent == null)// 要是p没有父亲,那么r就是最老的根节点
                 root = r;
-            else if (p.parent.left == p)
+            else if (p.parent.left == p)// 如果p有父亲并且是它父亲的左孩子,p的父亲现在认r为左孩子,不要p了
                 p.parent.left = r;
-            else
+            else// 如果p是父亲的右孩子,父亲就认r为右孩子,抛弃p
                 p.parent.right = r;
-            r.left = p;
+            r.left = p;// r逆袭成功,以前的爸爸p现在成了它的左孩子
             p.parent = r;
         }
     }
