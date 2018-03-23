@@ -82,6 +82,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * This implementation returns <tt>entrySet().size()</tt>.
      */
     public int size() {
+        // 使用Set.size()获取元素个数
         return entrySet().size();
     }
 
@@ -141,6 +142,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * @throws NullPointerException {@inheritDoc}
      */
     public boolean containsKey(Object key) {
+        // 迭代器遍历,查找key
         Iterator<Map.Entry<K,V>> i = entrySet().iterator();
         if (key==null) {
             while (i.hasNext()) {
@@ -173,6 +175,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * @throws NullPointerException          {@inheritDoc}
      */
     public V get(Object key) {
+        // 使用Set迭代器进行遍历,根据key查找
         Iterator<Entry<K,V>> i = entrySet().iterator();
         if (key==null) {
             while (i.hasNext()) {
@@ -205,6 +208,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * @throws NullPointerException          {@inheritDoc}
      * @throws IllegalArgumentException      {@inheritDoc}
      */
+    // 默认不支持put操作,需要子类自己实现
     public V put(K key, V value) {
         throw new UnsupportedOperationException();
     }
@@ -232,8 +236,10 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * @throws NullPointerException          {@inheritDoc}
      */
     public V remove(Object key) {
+        // 获取保存的Map.Entry集合迭代器
         Iterator<Entry<K,V>> i = entrySet().iterator();
         Entry<K,V> correctEntry = null;
+        // 遍历查找,当某个Entry的key和指定key一致使结束
         if (key==null) {
             while (correctEntry==null && i.hasNext()) {
                 Entry<K,V> e = i.next();
@@ -247,10 +253,12 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
                     correctEntry = e;
             }
         }
-
+        
+        // 找到之后返回要删除的值
         V oldValue = null;
         if (correctEntry !=null) {
             oldValue = correctEntry.getValue();
+            // 调用迭代器的remove()方法
             i.remove();
         }
         return oldValue;
@@ -305,8 +313,8 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * appropriate view the first time this view is requested.  The views are
      * stateless, so there's no reason to create more than one of each.
      */
-    transient volatile Set<K>        keySet;
-    transient volatile Collection<V> values;
+    transient volatile Set<K>        keySet;// 保存Map中所有的键, transient保证不可序列化, volatile保证并发环境下修改的可见性
+    transient volatile Collection<V> values;// 保存Map中所有的值
 
     /**
      * {@inheritDoc}
@@ -324,7 +332,9 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * is performed, so there is a slight chance that multiple calls to this
      * method will not all return the same set.
      */
+    // TODO 获取所有的键
     public Set<K> keySet() {
+        // 如果成员变量keySet为null,创建一个空的AbstractMap
         if (keySet == null) {
             keySet = new AbstractSet<K>() {
                 public Iterator<K> iterator() {
@@ -381,7 +391,9 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * performed, so there is a slight chance that multiple calls to this
      * method will not all return the same collection.
      */
+    // TODO 获取所有的值
     public Collection<V> values() {
+        //如果成员变量values为null,创建一个空的AbstractMap返回
         if (values == null) {
             values = new AbstractCollection<V>() {
                 public Iterator<V> iterator() {
@@ -422,6 +434,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
         return values;
     }
 
+    // TODO 唯一的抽象方法,获取所有的键值,子类实现
     public abstract Set<Entry<K,V>> entrySet();
 
 
@@ -449,23 +462,31 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * @param o object to be compared for equality with this map
      * @return <tt>true</tt> if the specified object is equal to this map
      */
+    // TODO equals
     public boolean equals(Object o) {
+        // 引用指向同一个对象
         if (o == this)
             return true;
 
+        // 必须是Map的实现类
         if (!(o instanceof Map))
             return false;
+        // 强转为Map
         Map<?,?> m = (Map<?,?>) o;
+        // 元素个数必须一致
         if (m.size() != size())
             return false;
 
         try {
+            // 迭代器遍历,一个一个对比
             Iterator<Entry<K,V>> i = entrySet().iterator();
             while (i.hasNext()) {
+                // 对比每个Entry的key和value
                 Entry<K,V> e = i.next();
                 K key = e.getKey();
                 V value = e.getValue();
                 if (value == null) {
+                    // 对比key和value
                     if (!(m.get(key)==null && m.containsKey(key)))
                         return false;
                 } else {
@@ -500,8 +521,10 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * @see Object#equals(Object)
      * @see Set#equals(Object)
      */
+    // TODO hashCode
     public int hashCode() {
         int h = 0;
+        // 迭代器遍历,所有hashCode之和
         Iterator<Entry<K,V>> i = entrySet().iterator();
         while (i.hasNext())
             h += i.next().hashCode();
@@ -581,6 +604,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      *
      * @since 1.6
      */
+    // TODO 可变的键值对
     public static class SimpleEntry<K,V>
         implements Entry<K,V>, java.io.Serializable
     {
@@ -637,6 +661,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
          * @param value new value to be stored in this entry
          * @return the old value corresponding to the entry
          */
+        // TODO 可以修改值
         public V setValue(V value) {
             V oldValue = this.value;
             this.value = value;
@@ -711,6 +736,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      *
      * @since 1.6
      */
+    // TODO 不可变的键值对 Immutable:不可变的
     public static class SimpleImmutableEntry<K,V>
         implements Entry<K,V>, java.io.Serializable
     {
@@ -770,6 +796,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
          * @return (Does not return)
          * @throws UnsupportedOperationException always
          */
+        // TODO 修改值,不可变的Entry不支持此操作
         public V setValue(V value) {
             throw new UnsupportedOperationException();
         }
@@ -795,6 +822,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
          *         entry
          * @see    #hashCode
          */
+        // TODO 比较指定Entry是否和本地相同;要求顺序,key-value必须全相等;只要是Map的实现类即可,不同实现也可以相等
         public boolean equals(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
@@ -815,6 +843,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
          * @return the hash code value for this map entry
          * @see    #equals
          */
+        // TODO hashCode, 键hashCode与值hashCode的 异或
         public int hashCode() {
             return (key   == null ? 0 :   key.hashCode()) ^
                    (value == null ? 0 : value.hashCode());
