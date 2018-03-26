@@ -778,7 +778,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      */
 
     private static class IntegerCache {
-        static final int low = -128;
+        static final int low = -128; 
         static final int high;
         static final Integer cache[];
 
@@ -805,6 +805,7 @@ public final class Integer extends Number implements Comparable<Integer> {
                 cache[k] = new Integer(j++);
 
             // range [-128, 127] must be interned (JLS7 5.1.7)
+            // 最小:-128 最大:127 八位二进制的表示的范围正好就是-128到127
             assert IntegerCache.high >= 127;
         }
 

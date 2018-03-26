@@ -305,7 +305,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      */
     // TODO 每个链表节点
     static class Node<K,V> implements Map.Entry<K,V> {
-        final int hash;// 哈希值 即位置
+        final int hash;// 哈希值 用来定位数组索引位置
         final K key;// 键
         V value;// 值
         Node<K,V> next;// 指向下一个节点的指针
@@ -367,8 +367,15 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     // TODO 位置计算(哈希值计算),将传入键的hashCode进行无符号右移16位,然后按位异或,等到键的哈希值
     static final int hash(Object key) {
         int h;
+        // h = key.hashCode() 取hashCode值
+        // h ^ (h >>> 16) 高位运算(hashCode的高16位 异或 低16位)
         // key为空,直接返回下标0
         return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+    }
+    
+    // TODO jdk1.7源码, jdk1.8已删除
+    static int indexFor(int h, int length){
+        return h & (length - 1);// 取模运算
     }
 
     /**
@@ -687,7 +694,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         // 找到具体的数组下标,如果此位置没有值,直接初始化一下Node并放置在这个位置上
         // 根据hash值计算出tab数组的位置并判断是否为空,如果为空就直接把值存入一个新的Node中
         // 散列到对应的bin,若该bin为空,直接放入Entry中
-        if ((p = tab[i = (n - 1) & hash]) == null)
+        if ((p = tab[i = (n - 1) & hash]) == null) // #HashMap.indexFor(int, int)
             tab[i] = newNode(hash, key, value, null);
         // 计算出的p索引有元素存在,已经存在单链表或红黑树
         else {
@@ -771,7 +778,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
             // 新的容量为旧的两倍
             else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
                      oldCap >= DEFAULT_INITIAL_CAPACITY)
-                // 如果就容量小于16,新的阈值就是旧阈值的两倍
+                // 如果旧容量小于16,新的阈值就是旧阈值的两倍
                 newThr = oldThr << 1; // double threshold
         }
         // 如果旧阈值>0,说明之前创建了哈希表但没有添加元素,初始容量等于阈值
