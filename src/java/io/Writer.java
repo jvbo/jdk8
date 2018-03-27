@@ -47,6 +47,7 @@ package java.io;
  * @since       JDK1.1
  */
 
+//TODO 字符流
 public abstract class Writer implements Appendable, Closeable, Flushable {
 
     /**
