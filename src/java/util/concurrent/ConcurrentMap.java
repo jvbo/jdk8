@@ -60,6 +60,7 @@ import java.util.function.Function;
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  */
+// TODO 并发下的Map接口,定义一些通用Map操作
 public interface ConcurrentMap<K, V> extends Map<K, V> {
 
     /**

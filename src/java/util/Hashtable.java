@@ -127,6 +127,7 @@ import java.util.function.BiFunction;
  * @see     TreeMap
  * @since JDK1.0
  */
+// TODO java监视器模式
 public class Hashtable<K,V>
     extends Dictionary<K,V>
     implements Map<K,V>, Cloneable, java.io.Serializable {

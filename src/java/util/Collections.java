@@ -76,7 +76,12 @@ import java.util.stream.StreamSupport;
  * @see     Map
  * @since   1.2
  */
-
+// TODO 提供了包装器工厂方法,使得那些非线程安全的类可以在多线程环境中使用
+/**
+ * 这些工厂方法通过装饰器模式将容器封装在一个同步的包装器对象中,而包装器能够将接口中的每个方法都实现为同步方法,
+ * 并将调用请求转发到底层的容器对象上;只要包装器对象有用对底层容器对象的唯一引用(即把底层容器对象封闭在包装器中),
+ * 那么它就是线程安全的;注释文档指出,对底层对象的所有访问必须通过包装器来进行;
+ */
 public class Collections {
     // Suppresses default constructor, ensuring non-instantiability.
     private Collections() {

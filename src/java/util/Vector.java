@@ -80,6 +80,7 @@ import java.util.function.UnaryOperator;
  * @see LinkedList
  * @since   JDK1.0
  */
+// TODO java监视器模式
 public class Vector<E>
     extends AbstractList<E>
     implements List<E>, RandomAccess, Cloneable, java.io.Serializable

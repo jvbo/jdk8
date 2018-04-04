@@ -738,6 +738,7 @@ public interface Map<K,V> {
      *         (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
      * @since 1.8
      */
+    // TODO 若没有则添加
     default V putIfAbsent(K key, V value) {
         V v = get(key);
         if (v == null) {
@@ -781,6 +782,7 @@ public interface Map<K,V> {
      *         (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
      * @since 1.8
      */
+    // TODO 若key映射到value则删除
     default boolean remove(Object key, Object value) {
         Object curValue = get(key);
         if (!Objects.equals(curValue, value) ||
@@ -833,6 +835,7 @@ public interface Map<K,V> {
      *         or value prevents it from being stored in this map
      * @since 1.8
      */
+    // TODO 若key映射到oldValue则替换newValue
     default boolean replace(K key, V oldValue, V newValue) {
         Object curValue = get(key);
         if (!Objects.equals(curValue, oldValue) ||
@@ -881,6 +884,7 @@ public interface Map<K,V> {
      *         or value prevents it from being stored in this map
      * @since 1.8
      */
+    // TODO 若key映射到某个值则替换
     default V replace(K key, V value) {
         V curValue;
         if (((curValue = get(key)) != null) || containsKey(key)) {
