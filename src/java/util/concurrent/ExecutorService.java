@@ -134,6 +134,7 @@ import java.util.Collection;
  * @since 1.5
  * @author Doug Lea
  */
+// TODO 一些用于任务提交的便利方法,一些用于生命周期管理的方法;
 public interface ExecutorService extends Executor {
 
     /**
