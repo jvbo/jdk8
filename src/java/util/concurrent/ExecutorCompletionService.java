@@ -112,6 +112,7 @@ public class ExecutorCompletionService<V> implements CompletionService<V> {
     /**
      * FutureTask extension to enqueue upon completion
      */
+    // TODO 这里的take和poll方法委托给了BlockingQueue,得出结果前将一直阻塞;
     private class QueueingFuture extends FutureTask<Void> {
         QueueingFuture(RunnableFuture<V> task) {
             super(task, null);
