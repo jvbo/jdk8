@@ -40,9 +40,18 @@ import java.util.List;
  * @author  Pavani Diwanji
  * @since   JDK1.0
  */
+// TODO 文件描述符
 public final class FileDescriptor {
-
-    private int fd;
+    /**
+     * 1. 操作系统使用文件描述符来指代一个打开的文件,对文件的读写操作,都需要文件描述符作为参数;
+     * java虽然在设计上使用了抽象程度更高的流来作为文件操作的模型,但是底层依然需要使用
+     * 文件描述符与操作系统交互;
+     * 
+     * 2. 操作系统中的文件描述符本质上是一个非负整数,其中0,1,2固定为标准输入,标准输出,标准错误输出,
+     * 程序接下来打开的文件使用当前进程中最小的可用的文件描述符号码,比如3;
+     */
+    
+    private int fd;// 文件描述符
 
     private long handle;
 
@@ -55,6 +64,7 @@ public final class FileDescriptor {
      * object.
      */
     public /**/ FileDescriptor() {
+        // 文件描述符无法在java代码中设置,因为这里只有无参构造函数
         fd = -1;
         handle = -1;
     }

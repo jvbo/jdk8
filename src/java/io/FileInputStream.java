@@ -132,7 +132,9 @@ class FileInputStream extends InputStream
         if (file.isInvalid()) {
             throw new FileNotFoundException("Invalid file path");
         }
+        // 构造函数初始化时,会新建FileDescriptor实例
         fd = new FileDescriptor();
+        // 关联 #FileInputStream 和 #FileDescriptor,为日后关闭文件做准备
         fd.attach(this);
         path = name;
         open(name);
@@ -184,6 +186,7 @@ class FileInputStream extends InputStream
      * Opens the specified file for reading.
      * @param name the name of the file
      */
+    // TODO java层面无法对文件描述符赋值(native方法);
     private native void open0(String name) throws FileNotFoundException;
 
     // wrap native call to allow instrumentation

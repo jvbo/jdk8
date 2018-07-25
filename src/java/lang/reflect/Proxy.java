@@ -636,9 +636,11 @@ public class Proxy implements java.io.Serializable {
             /*
              * Generate the specified proxy class.
              */
+            // TODO 生成代理类的字节码文件并保存到硬盘中
             byte[] proxyClassFile = ProxyGenerator.generateProxyClass(
                 proxyName, interfaces, accessFlags);
             try {
+                // TODO 使用类加载器将字节码加载到内存中
                 return defineClass0(loader, proxyName,
                                     proxyClassFile, 0, proxyClassFile.length);
             } catch (ClassFormatError e) {
@@ -716,6 +718,7 @@ public class Proxy implements java.io.Serializable {
         /*
          * Look up or generate the designated proxy class.
          */
+        // TODO 获取代理类
         Class<?> cl = getProxyClass0(loader, intfs);
 
         /*
@@ -725,7 +728,8 @@ public class Proxy implements java.io.Serializable {
             if (sm != null) {
                 checkNewProxyPermission(Reflection.getCallerClass(), cl);
             }
-
+            
+            // TODO 获取带有InvocationHandler参数的构造函数
             final Constructor<?> cons = cl.getConstructor(constructorParams);
             final InvocationHandler ih = h;
             if (!Modifier.isPublic(cl.getModifiers())) {
@@ -736,6 +740,7 @@ public class Proxy implements java.io.Serializable {
                     }
                 });
             }
+            // TODO 把handler传入构造方法生成实例
             return cons.newInstance(new Object[]{h});
         } catch (IllegalAccessException|InstantiationException e) {
             throw new InternalError(e.toString(), e);
