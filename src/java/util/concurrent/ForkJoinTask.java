@@ -326,10 +326,26 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
                  ForkJoinPool.common.tryExternalUnpush(this) ? doExec() : 0);
         if (s >= 0 && (s = status) >= 0) {
             boolean interrupted = false;
+            // 循环检测方式对状态变量status进行判断
+            /**
+             * 1. 始终使用while循环来调用wait(),永远不要在循环之外调用wait();
+             * 这样做的原因是尽管并不满足被唤醒条件,但是由于其他线程调用notifyAll()会导致被阻塞线程意外唤醒,
+             * 此时执行条件并不满足,它将破坏被锁保护的约定关系,导致约束失效,引起意象不到的结果;
+             */
             do {
                 if (U.compareAndSwapInt(this, STATUS, s, s | SIGNAL)) {
+                    /**
+                     * 当多个线程共享同一个变量的时候,每个读或者写数据的方法都必须加锁进行同步,
+                     * 如果没有正确的同步,就无法保证一个线程所做的修改被其他线程共享;
+                     * 未能同步共享变量会造成程序的活性失败和安全性失败,这样的失败是难以调试和重现的,
+                     * 它们可能间歇性的出现问题,可能随着并发的线程个数增加而失败,也可能在不同的虚拟机
+                     * 或者操作系统上存在不同的失败概率;
+                     */
                     synchronized (this) {
                         if (status >= 0) {
+                            /**
+                             * wait阻塞当前的调度线程,必须在同步块内部调用,同步块锁定当前对象实例;
+                             */
                             try {
                                 wait(0L);
                             } catch (InterruptedException ie) {
@@ -337,6 +353,12 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
                             }
                         }
                         else
+                            /**
+                             * 唤醒线程,应该使用notify还是notifyAll,当你不知道究竟该使用哪个方法时,
+                             * 保守的做法是调用notifyAll唤醒所有等待的线程;
+                             * 从优化的角度看,如果处于等待的所有线程都在等待同一个条件,
+                             * 而每次只有一个线程可以从这个条件中被唤醒,那么就应该选择notify;
+                             */
                             notifyAll();
                     }
                 }
