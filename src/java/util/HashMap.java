@@ -374,9 +374,9 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
     
     // TODO jdk1.7源码, jdk1.8已删除
-    static int indexFor(int h, int length){
+    /*static int indexFor(int h, int length){
         return h & (length - 1);// 取模运算
-    }
+    }*/
 
     /**
      * Returns x's Class if it is of the form "class C implements

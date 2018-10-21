@@ -300,15 +300,20 @@ public class TreeSet<E> extends AbstractSet<E>
         if (m.size()==0 && c.size() > 0 &&
             c instanceof SortedSet &&
             m instanceof TreeMap) {
+        	// 将c集合强制转换为SortedSet集合
             SortedSet<? extends E> set = (SortedSet<? extends E>) c;
-            TreeMap<E,Object> map = (TreeMap<E, Object>) m;
+            // 将m集合强制转换为TreeMap集合
+			TreeMap<E,Object> map = (TreeMap<E, Object>) m;
             Comparator<?> cc = set.comparator();
             Comparator<? super E> mc = map.comparator();
-            if (cc==mc || (cc != null && cc.equals(mc))) {
-                map.addAllForTreeSet(set, PRESENT);
+			// 如果cc和mc两个Comparetor相等
+			if (cc==mc || (cc != null && cc.equals(mc))) {
+				// 将Collect中所有元素添加成TreeMap集合的key
+            	map.addAllForTreeSet(set, PRESENT);
                 return true;
             }
         }
+        // 直接调用父类的addAll
         return super.addAll(c);
     }
 

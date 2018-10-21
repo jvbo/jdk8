@@ -126,6 +126,12 @@ import java.io.Serializable;
  * @see Set
  * @since 1.2
  */
+
+/**
+ * TODO Map顶层接口,定义通用方法
+ * @param <K>
+ * @param <V>
+ */
 public interface Map<K,V> {
     // Query Operations
 
