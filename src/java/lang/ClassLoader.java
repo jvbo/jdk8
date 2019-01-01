@@ -403,13 +403,18 @@ public abstract class ClassLoader {
     {
         synchronized (getClassLoadingLock(name)) {
             // First, check if the class has already been loaded
+			// 首先, 检查是否已经加载过了
             Class<?> c = findLoadedClass(name);
             if (c == null) {
+            	// 没有加载过,遵循双亲委派,委托给父类加载或者委派给启动类加载器加载;
+				// 递归从父类加载器开始找,直到父类加载器是Bootstrap ClassLoader为止,;
                 long t0 = System.nanoTime();
                 try {
                     if (parent != null) {
-                        c = parent.loadClass(name, false);
+                    	// 如果存在父类加载器,就委派给父类加载器加载
+						c = parent.loadClass(name, false);
                     } else {
+						// 如果不存在父类加载器,就检查是否是由启动类加载器加载的类,通过调用本地方法native Class findBootstrapClass(String name)
                         c = findBootstrapClassOrNull(name);
                     }
                 } catch (ClassNotFoundException e) {
@@ -429,6 +434,7 @@ public abstract class ClassLoader {
                     sun.misc.PerfCounter.getFindClasses().increment();
                 }
             }
+            // 最后根据resolver的值,判断这个class是否需要解析;
             if (resolve) {
                 resolveClass(c);
             }
